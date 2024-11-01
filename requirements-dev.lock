@@ -10,6 +10,14 @@
 #   universal: false
 
 -e file:.
+certifi==2024.8.30
+    # via requests
+charset-normalizer==3.3.2
+    # via requests
+databricks-sql-connector==3.4.0
+    # via scsql
+et-xmlfile==1.1.0
+    # via openpyxl
 googleapis-common-protos==1.65.0
     # via grpcio-status
     # via pyspark
@@ -18,28 +26,46 @@ grpcio==1.66.1
     # via pyspark
 grpcio-status==1.66.1
     # via pyspark
+idna==3.10
+    # via requests
+lz4==4.3.3
+    # via databricks-sql-connector
 numpy==1.26.4
+    # via databricks-sql-connector
     # via pandas
     # via pyarrow
     # via pyspark
+oauthlib==3.2.2
+    # via databricks-sql-connector
+openpyxl==3.1.5
+    # via databricks-sql-connector
 pandas==2.2.3
+    # via databricks-sql-connector
     # via pyspark
 protobuf==5.28.2
     # via googleapis-common-protos
     # via grpcio-status
 py4j==0.10.9.7
     # via pyspark
-pyarrow==17.0.0
+pyarrow==16.1.0
+    # via databricks-sql-connector
     # via pyspark
 pyspark==3.5.2
-    # via spark-connect-sql
+    # via scsql
 python-dateutil==2.9.0.post0
     # via pandas
 pytz==2024.2
     # via pandas
+requests==2.32.3
+    # via databricks-sql-connector
 six==1.16.0
     # via python-dateutil
+    # via thrift
+thrift==0.20.0
+    # via databricks-sql-connector
 tzdata==2024.1
     # via pandas
 urllib3==2.2.3
-    # via spark-connect-sql
+    # via databricks-sql-connector
+    # via requests
+    # via scsql

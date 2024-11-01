@@ -12,6 +12,7 @@ version = "0.0.1"
 dependencies = [
     "pyspark[connect]",
     "urllib3>=2.2.3",
+    "databricks-sql-connector>=3.4.0",
 ]
 requires-python = ">=3.9"
 authors = [

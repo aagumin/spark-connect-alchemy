@@ -110,19 +110,19 @@ class Cursor:
                 assert isinstance(args, List)
 
         self.df = self.spark.sql(sql)
-        return self.df.show()
+        return self
 
     def executemany(self, sql):
         pass
 
     def fetchone(self, sql):
-        pass
+        return self.df.collect()[0]
 
     def fetchall(self):
-        pass
+        return self.df.collect()
 
     def fetchmany(self, size=None):
-        pass
+        return self.df.collect()
 
     def close(self):
         self.connection.close()
