@@ -21,6 +21,8 @@ et-xmlfile==1.1.0
 googleapis-common-protos==1.65.0
     # via grpcio-status
     # via pyspark
+greenlet==3.1.1
+    # via sqlalchemy
 grpcio==1.66.1
     # via grpcio-status
     # via pyspark
@@ -61,8 +63,12 @@ requests==2.32.3
 six==1.16.0
     # via python-dateutil
     # via thrift
+sqlalchemy==2.0.36
+    # via scsql
 thrift==0.20.0
     # via databricks-sql-connector
+typing-extensions==4.12.2
+    # via sqlalchemy
 tzdata==2024.1
     # via pandas
 urllib3==2.2.3

@@ -1,14 +1,17 @@
 import logging
-from typing import Optional, Union, Dict, Any, List
+from typing import Optional, Union, Dict, Any, List, TYPE_CHECKING
 
 from pyspark.sql.connect.session import SparkSession
 from urllib3.util import Url
 
-from scsql.constans import DEFAULT_CONNECT_PORT, DEFAULT_CONNECT_HOST, CONN_STRING_PARAMS
-from scsql.exceptions import DatabaseError, NotSupportedError
+from sqlalchemy_scsql.dbapi.constans import DEFAULT_CONNECT_PORT, DEFAULT_CONNECT_HOST, CONN_STRING_PARAMS
+from sqlalchemy_scsql.dbapi.exceptions import DatabaseError, NotSupportedError
+
+if TYPE_CHECKING:
+    pass
 
 apilevel = "2.0"
-threadsafety = 2
+threadsafety = 0
 paramstyle = "named"
 
 logger = logging.getLogger('py4j')
@@ -47,7 +50,12 @@ class Connection:
         self.grpc_max_message_size = grpc_max_message_size
         self.config = config
         # TODO: maybe best place to put this?
-        SparkSession.builder.remote(self._create_connection_string()).getOrCreate()
+        self._connect()
+
+    def _connect(self):
+        self.spark = SparkSession.getActiveSession()
+        if not self.spark:
+            self.spark = SparkSession.builder.remote(self._create_connection_string()).getOrCreate()
 
     def _create_connection_string(self) -> str:
         """
@@ -61,7 +69,8 @@ class Connection:
             result = address + "/;" + ";".join(f"{k}={v}" for k, v in conn_params.items())
         else:
             result = address
-        logging.debug("Connecting to %s", address)
+        print(address)
+        # logging.debug("Connecting to %s", address)
         return result
 
     def __enter__(self):
@@ -96,7 +105,8 @@ class Cursor:
 
     def __init__(self, session: Connection):
         self.connection = session
-        self.spark = SparkSession.getActiveSession()
+        self.spark = self.connection.spark #alias
+        self._result = None
 
     def description(self):
         pass
@@ -109,20 +119,30 @@ class Cursor:
             else:
                 assert isinstance(args, List)
 
-        self.df = self.spark.sql(sql)
+        self._result = self.spark.sql(sql)
         return self
 
     def executemany(self, sql):
         pass
 
     def fetchone(self, sql):
-        return self.df.collect()[0]
+        """Возвращает одну строку результата или None, если строк больше нет."""
+        if self._result is None:
+            raise Exception("Нет выполненного запроса. Используйте метод execute() перед fetchone().")
+        rows = self._result.collect()
+        return tuple(rows[0]) if rows else None
 
     def fetchall(self):
-        return self.df.collect()
+        """Возвращает все результаты запроса в виде списка кортежей."""
+        if self._result is None:
+            raise Exception("Нет выполненного запроса. Используйте метод execute() перед fetchall().")
+        return [tuple(row) for row in self._result.collect()]
 
     def fetchmany(self, size=None):
-        return self.df.collect()
+        """Возвращает все результаты запроса в виде списка кортежей."""
+        if self._result is None:
+            raise Exception("Нет выполненного запроса. Используйте метод execute() перед fetchall().")
+        return [tuple(row) for row in self._result.collect()][:size]
 
     def close(self):
         self.connection.close()

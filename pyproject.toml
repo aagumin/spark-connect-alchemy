@@ -3,16 +3,17 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["scsql"]
+packages = ["sqlalchemy_scsql"]
 
 
 [project]
-name = "scsql"
+name = "sqlalchemy_scsql"
 version = "0.0.1"
 dependencies = [
     "pyspark[connect]",
     "urllib3>=2.2.3",
     "databricks-sql-connector>=3.4.0",
+    "sqlalchemy>=2.0.36",
 ]
 requires-python = ">=3.9"
 authors = [
@@ -37,3 +38,19 @@ Documentation = "https://github.com/aagumin/spark-connect-alchemy"
 Repository = "https://github.com/aagumin/spark-connect-alchemy.git"
 "Bug Tracker" = "https://github.com/aagumin/spark-connect-alchemy/issues"
 Changelog = "https://github.com/aagumin/spark-connect-alchemy/blob/master/CHANGELOG.md"
+
+
+[project.sqlalchemy.dialects]
+access.pyodbc = "sqlalchemy_scsql.dialect:SparkConnectDialect"
+
+[tool.pytest]
+addopts=" --tb native -v -r fxX --maxfail=25 -p no:warnings"
+python_files="test/*test_*.py"
+
+[sqla_testing]
+requirement_cls="sqlalchemy_scsql.dialect.requirements:Requirements"
+profile_file="test/profiles.txt"
+
+[db]
+default="access+pyodbc://admin@access_test"
+sqlite="sqlite:///:memory:"
