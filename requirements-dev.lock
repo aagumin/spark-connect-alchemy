@@ -15,7 +15,7 @@ certifi==2024.8.30
 charset-normalizer==3.3.2
     # via requests
 databricks-sql-connector==3.4.0
-    # via scsql
+    # via sqlalchemy-scsql
 et-xmlfile==1.1.0
     # via openpyxl
 googleapis-common-protos==1.65.0
@@ -53,7 +53,7 @@ pyarrow==16.1.0
     # via databricks-sql-connector
     # via pyspark
 pyspark==3.5.2
-    # via scsql
+    # via sqlalchemy-scsql
 python-dateutil==2.9.0.post0
     # via pandas
 pytz==2024.2
@@ -63,15 +63,13 @@ requests==2.32.3
 six==1.16.0
     # via python-dateutil
     # via thrift
-sqlalchemy==2.0.36
-    # via scsql
+sqlalchemy==1.4.54
+    # via sqlalchemy-scsql
 thrift==0.20.0
     # via databricks-sql-connector
-typing-extensions==4.12.2
-    # via sqlalchemy
 tzdata==2024.1
     # via pandas
 urllib3==2.2.3
     # via databricks-sql-connector
     # via requests
-    # via scsql
+    # via sqlalchemy-scsql
