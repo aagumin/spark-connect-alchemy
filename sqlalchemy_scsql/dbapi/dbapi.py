@@ -5,7 +5,7 @@ from pyspark.sql.connect.session import SparkSession
 from urllib3.util import Url
 
 from sqlalchemy_scsql.dbapi.constans import DEFAULT_CONNECT_PORT, DEFAULT_CONNECT_HOST, CONN_STRING_PARAMS
-from sqlalchemy_scsql.dbapi.exceptions import DatabaseError, NotSupportedError
+from sqlalchemy_scsql.dbapi.exceptions import DatabaseError, NotSupportedError, OperationalError
 
 if TYPE_CHECKING:
     pass
@@ -40,6 +40,7 @@ class Connection:
                  session_id=None,
                  grpc_max_message_size=None,
                  config=None):
+
         self.host = host
         self.port = port
         self.token = token
@@ -55,7 +56,9 @@ class Connection:
     def _connect(self):
         self.spark = SparkSession.getActiveSession()
         if not self.spark:
-            self.spark = SparkSession.builder.remote(self._create_connection_string()).getOrCreate()
+            if self.config is None:
+                self.config = {}
+            self.spark = SparkSession.builder.remote(self._create_connection_string()).config(map=self.config).getOrCreate()
 
     def _create_connection_string(self) -> str:
         """
@@ -69,7 +72,7 @@ class Connection:
             result = address + "/;" + ";".join(f"{k}={v}" for k, v in conn_params.items())
         else:
             result = address
-        print(address)
+        logging.debug(f"Try create connection with conn string: {address}",)
         # logging.debug("Connecting to %s", address)
         return result
 
@@ -84,10 +87,14 @@ class Connection:
     def close(self):
         """Close the underlying session and Thrift transport"""
         session = SparkSession.getActiveSession()
+        logging.debug(f"Closing spark session with id: {session.client._session_id}")
         session.client.interrupt_all()
         session.client.close()
+
         if not session.client.is_closed:
             raise DatabaseError("Spark client not closed")
+
+        logging.debug("Spark session closed")
 
     def commit(self):
         """does not support transactions, so this does nothing."""
@@ -115,33 +122,33 @@ class Cursor:
         if args is not None:
             if isinstance(args, Dict):
                 for k, v in args.items():
-                    assert isinstance(k, str)
+                    if not isinstance(k, str): raise TypeError(f"Argument '{k}' is not a string")
             else:
-                assert isinstance(args, List)
+                if not isinstance(args, List): raise TypeError(f"Argument '{args}' is not a list")
 
         self._result = self.spark.sql(sql)
         return self
 
-    def executemany(self, sql):
-        pass
+    def executemany(self):
+        NotImplementedError("Not implemented yet")
 
-    def fetchone(self, sql):
-        """Возвращает одну строку результата или None, если строк больше нет."""
+    def fetchone(self):
+        """Returns one result row or None if there are no more rows."""
         if self._result is None:
-            raise Exception("Нет выполненного запроса. Используйте метод execute() перед fetchone().")
+            raise OperationalError("No executed request. Use the execute() method before fetchone().")
         rows = self._result.collect()
         return tuple(rows[0]) if rows else None
 
     def fetchall(self):
-        """Возвращает все результаты запроса в виде списка кортежей."""
+        """Returns all the results of the query as a list of tuples."""
         if self._result is None:
-            raise Exception("Нет выполненного запроса. Используйте метод execute() перед fetchall().")
+            raise OperationalError("No executed request. Use the execute() method before fetchall().")
         return [tuple(row) for row in self._result.collect()]
 
     def fetchmany(self, size=None):
-        """Возвращает все результаты запроса в виде списка кортежей."""
+        """Returns the specified number of records of the query results as a list of tuples."""
         if self._result is None:
-            raise Exception("Нет выполненного запроса. Используйте метод execute() перед fetchall().")
+            raise OperationalError("No executed request. Use the execute() method before fetchmany().")
         return [tuple(row) for row in self._result.collect()][:size]
 
     def close(self):
