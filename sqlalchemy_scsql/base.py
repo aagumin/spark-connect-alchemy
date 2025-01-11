@@ -7,7 +7,6 @@ class SparkConnectDialect(default.DefaultDialect):
 
     # Possible attributes are defined here: https://docs.sqlalchemy.org/en/14/core/internals.html#sqlalchemy.engine.Dialect
     name: str = "sc"
-    driver: str = "sc"
     default_schema_name: str = "default"
 
     supports_statement_cache: bool = True
@@ -19,3 +18,5 @@ class SparkConnectDialect(default.DefaultDialect):
     @classmethod
     def dbapi(cls):
         return dbapi
+
+

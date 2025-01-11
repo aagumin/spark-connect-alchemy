@@ -40,16 +40,20 @@ Changelog = "https://github.com/aagumin/spark-connect-alchemy/blob/master/CHANGE
 
 
 [project.sqlalchemy.dialects]
-access.pyodbc = "sqlalchemy_scsql.dialect:SparkConnectDialect"
+access.pyodbc = "sqlalchemy_scsql:SparkConnectDialect"
+
+[project.entry-points."sqlalchemy.dialects"]
+sc = 'sqlalchemy_scsql:SparkConnectDialect'
 
 [tool.pytest]
 addopts=" --tb native -v -r fxX --maxfail=25 -p no:warnings"
 python_files="test/*test_*.py"
 
-[sqla_testing]
-requirement_cls="sqlalchemy_scsql.dialect.requirements:Requirements"
-profile_file="test/profiles.txt"
-
 [db]
 default="access+pyodbc://admin@access_test"
 sqlite="sqlite:///:memory:"
+
+[sqla_testing]
+requirement_cls="sqlalchemy_scsql.requirements:Requirements"
+profile_file="test/profiles.txt"
+

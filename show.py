@@ -37,7 +37,6 @@ from pyspark.sql import SparkSession
 # conn.close()
 # from sqlalchemy_scsql.dbapi.dbapi import connect
 # Create and configure logger
-logging.basicConfig()
 # Creating an object
 logger=logging.getLogger()
 
@@ -46,7 +45,7 @@ logger.setLevel(logging.DEBUG)
 from sqlalchemy import create_engine
 from sqlalchemy.dialects import registry
 
-registry.register("sc", "sqlalchemy_scsql.dialect", "SparkConnectDialect")
+registry.register("sc", "sqlalchemy_scsql", "SparkConnectDialect")
 # Создание движка для подключения к PySpark Connect
 engine = create_engine("sc://localhost:15002")
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
