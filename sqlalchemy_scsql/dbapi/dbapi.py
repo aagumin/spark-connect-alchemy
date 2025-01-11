@@ -5,7 +5,8 @@ from pyspark.sql.connect.session import SparkSession
 from urllib3.util import Url
 
 from sqlalchemy_scsql.dbapi.constans import DEFAULT_CONNECT_PORT, DEFAULT_CONNECT_HOST, CONN_STRING_PARAMS
-from sqlalchemy_scsql.dbapi.exceptions import DatabaseError, NotSupportedError, OperationalError
+
+from .exceptions import *
 
 if TYPE_CHECKING:
     pass
@@ -105,7 +106,7 @@ class Connection:
         return Cursor(self)
 
     def rollback(self):
-        raise NotSupportedError("Spark does not have transactions")  # pragma: no cover
+        raise NotSupportedError("Spark does not have transactions")
 
 
 class Cursor:
